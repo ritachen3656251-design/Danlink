@@ -1,0 +1,9 @@
+{
+  "name": "旦Link (DanLink)",
+  "description": "Fudan University campus community app for errands, delivery, second-hand trading, and social connection.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
