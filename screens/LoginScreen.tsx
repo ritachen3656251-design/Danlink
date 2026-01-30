@@ -316,7 +316,7 @@ const LoginScreen = () => {
                           : 'border-transparent hover:border-slate-300 dark:hover:border-slate-600'
                       }`}
                     >
-                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <img src={url} alt="" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = '/images/avatar-placeholder.svg'; }} />
                     </button>
                   ))}
                 </div>
@@ -360,14 +360,7 @@ const LoginScreen = () => {
   return (
     <div className="font-display antialiased h-screen w-full flex flex-col bg-primary overflow-hidden selection:bg-white/20 selection:text-white">
       <header className={`relative ${step !== 'landing' ? 'h-[30%]' : 'h-[45%]'} shrink-0 w-full flex flex-col items-center justify-center text-white overflow-hidden transition-all duration-500`}>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0d3aa0] to-primary z-0"></div>
-        <div 
-          className="absolute inset-0 z-0 opacity-10 mix-blend-overlay bg-cover bg-center bg-no-repeat" 
-          style={{
-            backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCsNd1cv6eM81RSJLP9wrMRej7BA70kM_3djPCJpq6uBunmMCikf6K6f6B_nDnJPWJzahhzy0L8IVCRdL23opnk6l55TBmQQHYvdk526RUiWzgI1JuR2gjJCbl9VNr2Gh1fT7wUBaKp_mhAzKcP7NGKAWIlfIRglwyCxt_hwAI7vcuwMDriyotA66GkIpeX8FPP-fAt0ZluAN7eIPCCz9JSFNn0PxXJ6lpX1h1UA1IW1P1vNTpOLEP9miQwK7_9P4eqvu_ilQ9MVxqZ')",
-            maskImage: "linear-gradient(to bottom, black, transparent)"
-          }}
-        ></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0d3aa0] to-primary z-0" aria-hidden />
         <div className="relative z-10 flex flex-col items-center text-center gap-3 px-6 animate-fade-in-up">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
