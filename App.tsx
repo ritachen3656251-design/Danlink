@@ -19,8 +19,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const showNav = !hideNavRoutes.includes(location.pathname);
 
   return (
-    <div className="relative min-h-screen w-full mx-auto max-w-md bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden flex flex-col">
-      <div className="flex-1 overflow-y-auto no-scrollbar relative">
+    <div className="relative min-h-screen w-full max-w-full mx-auto sm:max-w-md md:max-w-lg lg:max-w-xl bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto no-scrollbar relative w-full min-h-0">
         {children}
       </div>
       {showNav && <BottomNav />}

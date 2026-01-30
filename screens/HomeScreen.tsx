@@ -362,7 +362,7 @@ const HomeScreen = () => {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+    <div className="bg-background-light dark:bg-background-dark font-display antialiased min-h-screen w-full flex flex-col relative overflow-x-hidden">
       <header className="bg-primary pt-12 pb-4 px-4 rounded-b-[2rem] shadow-soft z-10 sticky top-0 transition-all">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
