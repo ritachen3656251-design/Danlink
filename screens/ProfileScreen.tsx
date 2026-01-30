@@ -13,7 +13,6 @@ const ProfileScreen = () => {
     id: '21302010001',
     major: '计算机科学技术学院',
     year: '21届',
-    balance: 0,
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC_IEv6aRsK0zxLgHlRxhHnqWQ_kjVVQjNju4tgNbZkfeoHi-s-g9LJjaolyGA3gblPMF-yTA4osLYYzxXGOUjmggwmuOyM6Bik0dzOSDzzEJx9o-78MxlCnTfnh_itoChDZPo3ZmBMbziJ1Evy6k2ZNdSS67i8YzKro5wOx47qKxwKMiX2L5K_p4ZSvHl6dc_X-LicTZJDPNOWJBzLp3G_aCSIsYGcgWHzuw4tI_4tR4acmWcuSVggBB4r03IVYbELxHEO3z-AcxyF'
   });
 
@@ -26,8 +25,6 @@ const ProfileScreen = () => {
       }
     };
     loadUser();
-    
-    // Listen for balance updates from ChatScreen
     window.addEventListener('storage', loadUser);
     return () => window.removeEventListener('storage', loadUser);
   }, []);
@@ -48,7 +45,7 @@ const ProfileScreen = () => {
       price: row.price_display || row.price || '',
       priceLabel: row.price_label || '酬劳',
       description: row.description || '',
-      publisher: { id: p.student_id || p.id, name: p.name || '已实名学生', avatar: p.avatar_url || '', major: p.major || '', rating: String(p.rating ?? '5.0') },
+      publisher: { id: p.student_id || p.id, name: p.name || '已实名学生', avatar: p.avatar_url || '', major: p.major || '' },
       mapConfig: { startLabel: row.start_label || '', endLabel: row.end_label || '' },
       quickReplies: Array.isArray(row.quick_replies) ? row.quick_replies : [],
       timeAgo,
@@ -75,7 +72,7 @@ const ProfileScreen = () => {
           const taskIds = rows.map((r: { task_id: string }) => r.task_id);
           const { data: tasks } = await supabase
             .from('tasks')
-            .select('*, publisher:profiles!publisher_id(id, student_id, name, major, avatar_url, rating)')
+            .select('*, publisher:profiles!publisher_id(id, student_id, name, major, avatar_url)')
             .in('id', taskIds)
             .order('created_at', { ascending: false });
           if (tasks?.length) {
@@ -106,7 +103,7 @@ const ProfileScreen = () => {
       if (profile?.id) {
         const { data: tasks } = await supabase
           .from('tasks')
-          .select('*, publisher:profiles!publisher_id(id, student_id, name, major, avatar_url, rating)')
+          .select('*, publisher:profiles!publisher_id(id, student_id, name, major, avatar_url)')
           .eq('publisher_id', profile.id)
           .order('created_at', { ascending: false });
         if (tasks?.length) {
@@ -188,16 +185,6 @@ const ProfileScreen = () => {
               <span className="material-symbols-outlined text-slate-400 text-lg">chevron_right</span>
             </button>
 
-            <button className="w-full flex items-center gap-4 p-3 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-colors">
-              <div className="h-10 w-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                <span className="material-symbols-outlined">account_balance_wallet</span>
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-slate-900 dark:text-white font-semibold text-sm">钱包余额</p>
-              </div>
-              <p className="text-slate-700 dark:text-slate-200 text-base font-mono font-bold">¥ {user.balance ?? 0}</p>
-              <span className="material-symbols-outlined text-slate-400 text-lg">chevron_right</span>
-            </button>
           </div>
           
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-2 shadow-sm border border-slate-100 dark:border-gray-700">
@@ -261,7 +248,7 @@ const ProfileScreen = () => {
                          <button 
                             onClick={() => {
                               setShowTasksModal(false);
-                              navigate('/chat', { state: { accepted: true, task: task } });
+                              navigate('/chat', { state: { taskId: task.id, accepted: true, task } });
                             }}
                             className="ml-auto text-xs text-slate-500 hover:text-primary font-medium"
                           >

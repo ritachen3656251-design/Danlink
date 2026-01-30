@@ -58,7 +58,7 @@ const PublishTaskScreen = () => {
         name: user ? user.name : '我',
         id: user ? user.id : 'me',
         avatar: user ? user.avatar : '',
-        major: user ? user.major : '复旦学生',
+        major: user?.major ?? user?.college ?? '复旦学生',
         rating: '5.0'
       },
       mapConfig: { startLabel: startLoc, endLabel: endLoc },

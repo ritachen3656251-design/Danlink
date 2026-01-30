@@ -2,12 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
+/** 注册页预设头像库（15–18 个），用户点击选择，不上传 */
+const PRESET_AVATARS: string[] = [
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=1',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=2',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=3',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=4',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=5',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=6',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=7',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=8',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=9',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=10',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=11',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=12',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=13',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=14',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=15',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=16',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=17',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=18',
+];
+
+/** 常见学院选项（可扩展） */
+const COLLEGE_OPTIONS = [
+  '哲学学院', '法学院', '国际关系与公共事务学院', '中国语言文学系', '外国语言文学学院',
+  '新闻学院', '历史学系', '经济学院', '管理学院', '数学科学学院', '物理学系', '化学系',
+  '生命科学学院', '计算机科学技术学院', '信息科学与工程学院', '环境科学与工程系',
+  '复旦学院', '其他',
+];
+
+/** 届数选项（近年） */
+const GRADUATION_YEAR_OPTIONS = ['2020届', '2021届', '2022届', '2023届', '2024届', '2025届', '2026届'];
+
 const LoginScreen = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<'landing' | 'login' | 'register'>('landing');
   const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState(''); // For registration
+  const [college, setCollege] = useState('');
+  const [graduationYear, setGraduationYear] = useState('');
+  const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string>(PRESET_AVATARS[0]);
   const [loading, setLoading] = useState(false);
 
   // Initialize mock database in localStorage if not exists
@@ -21,7 +57,6 @@ const LoginScreen = () => {
           password: '1',
           major: '计算机科学技术学院',
           year: '21届',
-          balance: 1240,
           avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC_IEv6aRsK0zxLgHlRxhHnqWQ_kjVVQjNju4tgNbZkfeoHi-s-g9LJjaolyGA3gblPMF-yTA4osLYYzxXGOUjmggwmuOyM6Bik0dzOSDzzEJx9o-78MxlCnTfnh_itoChDZPo3ZmBMbziJ1Evy6k2ZNdSS67i8YzKro5wOx47qKxwKMiX2L5K_p4ZSvHl6dc_X-LicTZJDPNOWJBzLp3G_aCSIsYGcgWHzuw4tI_4tR4acmWcuSVggBB4r03IVYbELxHEO3z-AcxyF'
         },
         '21302010002': {
@@ -30,7 +65,6 @@ const LoginScreen = () => {
           password: '1',
           major: '物理学系',
           year: '21届',
-          balance: 560,
           avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB5CRjpipLhLaAMQhev96yIXWSmU0spV4xuRMLxui2tQ6GV4wLrrf811_Wx8C2gfveNsksm3PDSzUiSeQ369Rq7UNEatsuNCqHsEPiO9SqIkiAL3CSl6U4O0SVQP8Zr4RygCO5V8XBWxdb9a4lsgUgr8VJdlpCqo_SAPkNsBA6jgxKDMp0P_60oixqBjYH7lvX7cfYo_dsXwtdLRe5E1Rc7j3dfoSjUZ9Amb56NWpLldNdZCkzQuUKzMa789RXFS4mycQyjEmv8GTQa'
         },
         '22301010003': {
@@ -39,7 +73,6 @@ const LoginScreen = () => {
           password: '1',
           major: '新闻学院',
           year: '22届',
-          balance: 880,
           avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAKWAmfDt9PS1X0KbAVTbZFTBLxirLSSnZ2lpQI2jGHF0F9o0_9OFxXBv3EjGj0vByBIrzWdlM968z2CSZwHo9kZ_A2lONczTgnaw7h2XptZ5DKL8In-6HEMw7HBIHXYGN-27ARuhqrQ7FfefGzv5KdlV1J6BgkZOP39displrArJZaiawyEi1at7dOF513bK0cPhRUNsxqlxPTdt2MNq_0pTLDL1pmIoBG7iTYVYXq8KsnajElS30chbtZomvC8cGr4uZd3lF-XXnJ'
         }
       };
@@ -68,13 +101,16 @@ const LoginScreen = () => {
       if (profile) {
         const user = {
           id: profile.student_id,
+          profileId: profile.id,
           name: profile.name,
           major: profile.major,
           year: profile.year,
-          balance: profile.balance ?? 0,
+          college: profile.college ?? '',
+          graduation_year: profile.graduation_year ?? '',
           avatar: profile.avatar_url || ''
         };
         localStorage.setItem('current_user', JSON.stringify(user));
+        window.dispatchEvent(new Event('current_user_changed'));
         localStorage.removeItem('my_accepted_tasks');
         localStorage.removeItem('my_published_tasks');
         setLoading(false);
@@ -86,8 +122,8 @@ const LoginScreen = () => {
     const db = JSON.parse(localStorage.getItem('user_db') || '{}');
     const user = db[studentId];
     if (user && user.password === password) {
-      if (user.balance === undefined) user.balance = 0;
       localStorage.setItem('current_user', JSON.stringify(user));
+      window.dispatchEvent(new Event('current_user_changed'));
       localStorage.removeItem('my_accepted_tasks');
       localStorage.removeItem('my_published_tasks');
       setLoading(false);
@@ -95,7 +131,7 @@ const LoginScreen = () => {
       return;
     }
 
-    alert("学号或密码错误 (默认测试密码: 1)");
+    alert("学号或密码错误");
     setLoading(false);
   };
 
@@ -103,6 +139,10 @@ const LoginScreen = () => {
   const handleRegister = async () => {
     if (!studentId || !password || !name) {
       alert("请填写完整信息");
+      return;
+    }
+    if (!college || !graduationYear) {
+      alert("请选择学院和届数");
       return;
     }
 
@@ -127,10 +167,11 @@ const LoginScreen = () => {
         .insert({
           student_id: studentId,
           name,
-          major: '复旦学院',
-          year: '24届',
-          balance: 100,
-          avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + studentId
+          major: college,
+          year: graduationYear,
+          avatar_url: selectedAvatarUrl || PRESET_AVATARS[0],
+          college,
+          graduation_year: graduationYear,
         })
         .select()
         .single();
@@ -144,17 +185,20 @@ const LoginScreen = () => {
       if (newProfile) {
         const user = {
           id: newProfile.student_id,
+          profileId: newProfile.id,
           name: newProfile.name,
           major: newProfile.major,
           year: newProfile.year,
-          balance: newProfile.balance ?? 100,
+          college: newProfile.college ?? '',
+          graduation_year: newProfile.graduation_year ?? '',
           avatar: newProfile.avatar_url || ''
         };
         localStorage.setItem('current_user', JSON.stringify(user));
+        window.dispatchEvent(new Event('current_user_changed'));
         localStorage.removeItem('my_accepted_tasks');
         localStorage.removeItem('my_published_tasks');
         setLoading(false);
-        alert("注册成功！获得 100 体验金！");
+        alert("注册成功！");
         navigate('/card');
         return;
       }
@@ -172,14 +216,16 @@ const LoginScreen = () => {
       return;
     }
     const newUser = {
-      name, id: studentId, password, major: '复旦学院', year: '24届', balance: 100,
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + studentId
+      name, id: studentId, password, major: college || '复旦学院', year: graduationYear || '24届',
+      college: college || '', graduation_year: graduationYear || '',
+      avatar: selectedAvatarUrl || PRESET_AVATARS[0]
     };
     db[studentId] = newUser;
     localStorage.setItem('user_db', JSON.stringify(db));
     localStorage.setItem('current_user', JSON.stringify(newUser));
+    window.dispatchEvent(new Event('current_user_changed'));
     setLoading(false);
-    alert("注册成功！获得 100 体验金！");
+    alert("注册成功！");
     navigate('/card');
   };
 
@@ -216,9 +262,10 @@ const LoginScreen = () => {
           </div>
           
           {isRegister && (
-             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">姓名 (Name)</label>
-              <div className="relative">
+            <>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">姓名 (Name)</label>
+                <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">person</span>
                   <input 
                     type="text" 
@@ -227,8 +274,54 @@ const LoginScreen = () => {
                     placeholder="请输入真实姓名"
                     className="w-full h-12 bg-slate-50 dark:bg-slate-800 border-none rounded-xl pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 font-medium"
                   />
+                </div>
               </div>
-            </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">学院 (College)</label>
+                <select
+                  value={college}
+                  onChange={(e) => setCollege(e.target.value)}
+                  className="w-full h-12 bg-slate-50 dark:bg-slate-800 border-none rounded-xl pl-4 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 font-medium appearance-none cursor-pointer"
+                >
+                  <option value="">请选择学院</option>
+                  {COLLEGE_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">届数 (Graduation Year)</label>
+                <select
+                  value={graduationYear}
+                  onChange={(e) => setGraduationYear(e.target.value)}
+                  className="w-full h-12 bg-slate-50 dark:bg-slate-800 border-none rounded-xl pl-4 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 font-medium appearance-none cursor-pointer"
+                >
+                  <option value="">请选择届数</option>
+                  {GRADUATION_YEAR_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">头像 (Avatar)</label>
+                <div className="grid grid-cols-6 gap-2">
+                  {PRESET_AVATARS.map((url) => (
+                    <button
+                      key={url}
+                      type="button"
+                      onClick={() => setSelectedAvatarUrl(url)}
+                      className={`aspect-square rounded-xl bg-slate-100 dark:bg-slate-700 overflow-hidden border-2 transition-all flex-shrink-0 ${
+                        selectedAvatarUrl === url
+                          ? 'border-primary ring-2 ring-primary/30'
+                          : 'border-transparent hover:border-slate-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
           )}
 
           <div>
@@ -260,14 +353,6 @@ const LoginScreen = () => {
             btnText
           )}
         </button>
-        
-        {!isRegister && (
-           <div className="mt-6 text-center">
-              <p className="text-xs text-slate-400">
-                测试账号: 21302010001 / 密码: 1
-              </p>
-           </div>
-        )}
       </div>
     );
   };
@@ -314,7 +399,12 @@ const LoginScreen = () => {
               </button>
 
               <button 
-                onClick={() => setStep('register')}
+                onClick={() => {
+                  setStep('register');
+                  setCollege('');
+                  setGraduationYear('');
+                  setSelectedAvatarUrl(PRESET_AVATARS[0]);
+                }}
                 className="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-2 border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-[0.98] transition-all duration-200 rounded-full h-14 px-6 font-bold"
               >
                 <span className="material-symbols-outlined text-[22px]">person_add</span>

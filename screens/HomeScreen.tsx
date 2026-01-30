@@ -14,12 +14,14 @@ interface TaskData {
   distance: string;
   timeAgo: string;
   description: string;
+  /** 发布者在 profiles 表中的 UUID，用于会话/消息后端 */
+  publisherProfileId?: string;
   publisher: {
     id?: string;
     name: string;
     avatar: string;
     major: string;
-    rating: string;
+    rating?: string;
   };
   mapConfig: {
     bgImage: string;
@@ -100,8 +102,13 @@ const HomeScreen = () => {
   const [taskList, setTaskList] = useState<TaskData[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('全部');
   const [refreshKey, setRefreshKey] = useState(0);
+  /** 广场列表可见条数（分页/折叠）：初始 10 条，点击「加载更多」增加 */
+  const [visibleCount, setVisibleCount] = useState(10);
+  const PAGE_SIZE = 10;
 
   const categories = ['全部', '外卖', '二手', '辅导', '跑腿'];
+  const displayedTasks = taskList.slice(0, visibleCount);
+  const hasMore = taskList.length > visibleCount;
 
   // Default tasks
   const defaultTasks: TaskData[] = [
@@ -199,12 +206,13 @@ const HomeScreen = () => {
       distance: row.distance || '校内',
       timeAgo,
       description: row.description || '',
+      publisherProfileId: row.publisher_id || p.id,
       publisher: {
         id: p.student_id || p.id,
         name: p.name || '已实名学生',
         avatar: p.avatar_url || '',
         major: p.major || '',
-        rating: String(p.rating ?? '5.0')
+        rating: p.rating != null ? String(p.rating) : undefined
       },
       mapConfig: {
         bgImage: row.map_bg_image_url ? `url('${row.map_bg_image_url}')` : '',
@@ -234,7 +242,7 @@ const HomeScreen = () => {
         const [tasksRes, acceptancesRes] = await Promise.all([
           supabase
             .from('tasks')
-            .select('*, publisher:profiles!publisher_id(id, student_id, name, major, avatar_url, rating)')
+            .select('*, publisher:profiles!publisher_id(id, student_id, name, major, avatar_url)')
             .eq('status', 'active')
             .order('created_at', { ascending: false }),
           supabase.from('task_acceptances').select('task_id'),
@@ -312,7 +320,7 @@ const HomeScreen = () => {
             if (!currentAccepted.some((t: any) => t.id === task.id)) {
               localStorage.setItem('my_accepted_tasks', JSON.stringify([...currentAccepted, task]));
             }
-            navigate('/chat', { state: { accepted: true, task: task } });
+            navigate('/chat', { state: { taskId: task.id, accepted: true, task } });
             return;
           }
         }
@@ -321,7 +329,7 @@ const HomeScreen = () => {
     if (!currentAccepted.some((t: any) => t.id === task.id)) {
       localStorage.setItem('my_accepted_tasks', JSON.stringify([...currentAccepted, task]));
     }
-    navigate('/chat', { state: { accepted: true, task: task } });
+    navigate('/chat', { state: { taskId: task.id, accepted: true, task } });
   };
 
   const getCardStyle = (type: string) => {
@@ -363,12 +371,7 @@ const HomeScreen = () => {
             </div>
             <h1 className="text-white text-xl font-bold tracking-tight">校园广场</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="relative text-white/90 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border border-primary"></span>
-            </button>
-          </div>
+          <div className="flex items-center gap-3" />
         </div>
         
         {/* Search Bar Removed as per request */}
@@ -378,7 +381,7 @@ const HomeScreen = () => {
             {categories.map(cat => (
                 <button
                     key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => { setSelectedCategory(cat); setVisibleCount(PAGE_SIZE); }}
                     className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                         selectedCategory === cat 
                         ? 'bg-white text-primary shadow-sm' 
@@ -413,7 +416,7 @@ const HomeScreen = () => {
                 <p>暂无此类任务</p>
              </div>
           ) : (
-            taskList.map((task) => {
+            displayedTasks.map((task) => {
                 const style = getCardStyle(task.type);
                 return (
                     <div key={task.id} onClick={() => openTask(task)} className="group bg-surface-light dark:bg-surface-dark rounded-xl p-4 shadow-card hover:shadow-soft transition-all duration-300 relative border border-slate-100 dark:border-slate-800 cursor-pointer">
@@ -451,11 +454,26 @@ const HomeScreen = () => {
             })
           )}
         </div>
-        
-        <div className="flex flex-col items-center justify-center py-8 text-center opacity-60">
-          <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">check_circle</span>
-          <p className="text-sm text-slate-400">就这么多啦！</p>
-        </div>
+
+        {taskList.length > 0 && (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            {hasMore ? (
+              <button
+                type="button"
+                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                className="px-5 py-2.5 rounded-full border-2 border-primary text-primary text-sm font-bold hover:bg-primary/10 transition-colors flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                查看更多
+              </button>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">check_circle</span>
+                <p className="text-sm text-slate-400">就这么多啦</p>
+              </>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Task Details Bottom Sheet */}
@@ -529,26 +547,41 @@ const HomeScreen = () => {
                  {/* Publisher Info (Semi-Anonymous) */}
                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 flex items-center gap-3 border border-slate-100 dark:border-slate-700 mb-6">
                     <div className="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
-                       <img src={selectedTask.publisher.avatar} className="w-full h-full object-cover grayscale opacity-80" alt="Anon" />
+                       <img src={selectedTask?.publisher?.avatar ?? ''} className="w-full h-full object-cover grayscale opacity-80" alt="Anon" />
                     </div>
                     <div className="flex-1">
                        {/* Anonymized Name in Detail Modal */}
                        <h3 className="font-bold text-slate-900 dark:text-white text-sm">已实名学生</h3>
                        <p className="text-xs text-slate-500 flex items-center gap-1">
-                          已实名 · {selectedTask.publisher.major} 
+                          已实名 · {selectedTask?.publisher?.major ?? '未知'} 
                           <span className="w-0.5 h-3 bg-slate-300"></span> 
+                          {selectedTask?.publisher?.rating != null && (
                           <span className="text-amber-500 font-bold flex items-center">{selectedTask.publisher.rating} <span className="material-symbols-outlined text-[10px] filled">star</span></span>
+                        )}
                        </p>
                     </div>
                     <span className="material-symbols-outlined text-slate-300 text-xl">shield</span>
                  </div>
               </div>
 
-              {/* Action Bar */}
+              {/* Action Bar：联系与消息列表共用同一会话，传 otherPartyProfileId（第一接单者）与消息列表一致 */}
               <div className="absolute bottom-0 left-0 right-0 p-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center gap-4 z-20">
-                 {/* Chat Inquiry Button */}
-                 <button 
-                   onClick={() => navigate('/chat', { state: { accepted: false, task: selectedTask } })}
+                 <button
+                   onClick={async () => {
+                     let otherPartyProfileId: string | undefined;
+                     const tid = selectedTask.id;
+                     if (/^[0-9a-f-]{36}$/i.test(String(tid))) {
+                       const { data: acc } = await supabase
+                         .from('task_acceptances')
+                         .select('acceptor_id')
+                         .eq('task_id', tid)
+                         .order('created_at', { ascending: true })
+                         .limit(1)
+                         .maybeSingle();
+                       otherPartyProfileId = (acc as any)?.acceptor_id ?? undefined;
+                     }
+                     navigate('/chat', { state: { taskId: selectedTask.id, accepted: false, task: selectedTask, otherPartyProfileId } });
+                   }}
                    className="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-700 px-2"
                  >
                     <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">

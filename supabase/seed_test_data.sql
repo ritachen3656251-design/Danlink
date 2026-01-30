@@ -3,14 +3,14 @@
 -- tasks: category_tag 仅用 #外卖/#二手/#辅导/#跑腿（前端 filter 用 categoryTag.includes(selectedCategory)）
 --        type: delivery(外卖/跑腿), study(二手), tutor(辅导)；price_label: 二手=售价，辅导=时薪，其余=酬劳
 
--- ========== 1. 插入 5 个虚拟复旦学生（与前端 LoginScreen MOCK_USERS 一致，便于联调）==========
-INSERT INTO public.profiles (student_id, name, major, year, balance, avatar_url, rating)
+-- ========== 1. 插入 5 个虚拟复旦学生（与前端 LoginScreen MOCK_USERS 一致；已移除 balance/rating）==========
+INSERT INTO public.profiles (student_id, name, major, year, avatar_url)
 VALUES
-  ('21302010001', '张伟', '计算机科学技术学院', '21届', 1240, 'https://lh3.googleusercontent.com/aida-public/AB6AXuC_IEv6aRsK0zxLgHlRxhHnqWQ_kjVVQjNju4tgNbZkfeoHi-s-g9LJjaolyGA3gblPMF-yTA4osLYYzxXGOUjmggwmuOyM6Bik0dzOSDzzEJx9o-78MxlCnTfnh_itoChDZPo3ZmBMbziJ1Evy6k2ZNdSS67i8YzKro5wOx47qKxwKMiX2L5K_p4ZSvHl6dc_X-LicTZJDPNOWJBzLp3G_aCSIsYGcgWHzuw4tI_4tR4acmWcuSVggBB4r03IVYbELxHEO3z-AcxyF', 4.9),
-  ('21302010002', '李华', '物理学系', '21届', 560, 'https://lh3.googleusercontent.com/aida-public/AB6AXuB5CRjpipLhLaAMQhev96yIXWSmU0spV4xuRMLxui2tQ6GV4wLrrf811_Wx8C2gfveNsksm3PDSzUiSeQ369Rq7UNEatsuNCqHsEPiO9SqIkiAL3CSl6U4O0SVQP8Zr4RygCO5V8XBWxdb9a4lsgUgr8VJdlpCqo_SAPkNsBA6jgxKDMp0P_60oixqBjYH7lvX7cfYo_dsXwtdLRe5E1Rc7j3dfoSjUZ9Amb56NWpLldNdZCkzQuUKzMa789RXFS4mycQyjEmv8GTQa', 4.8),
-  ('22301010003', '林悦', '新闻学院', '22届', 880, 'https://lh3.googleusercontent.com/aida-public/AB6AXuAKWAmfDt9PS1X0KbAVTbZFTBLxirLSSnZ2lpQI2jGHF0F9o0_9OFxXBv3EjGj0vByBIrzWdlM968z2CSZwHo9kZ_A2lONczTgnaw7h2XptZ5DKL8In-6HEMw7HBIHXYGN-27ARuhqrQ7FfefGzv5KdlV1J6BgkZOP39displrArJZaiawyEi1at7dOF513bK0cPhRUNsxqlxPTdt2MNq_0pTLDL1pmIoBG7iTYVYXq8KsnajElS30chbtZomvC8cGr4uZd3lF-XXnJ', 5.0),
-  ('22402010004', '王芳', '经济学院', '22届', 720, 'https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang', 4.7),
-  ('23102010005', '陈明', '数学科学学院', '23届', 100, 'https://api.dicebear.com/7.x/avataaars/svg?seed=chenming', 4.9)
+  ('21302010001', '张伟', '计算机科学技术学院', '21届', 'https://lh3.googleusercontent.com/aida-public/AB6AXuC_IEv6aRsK0zxLgHlRxhHnqWQ_kjVVQjNju4tgNbZkfeoHi-s-g9LJjaolyGA3gblPMF-yTA4osLYYzxXGOUjmggwmuOyM6Bik0dzOSDzzEJx9o-78MxlCnTfnh_itoChDZPo3ZmBMbziJ1Evy6k2ZNdSS67i8YzKro5wOx47qKxwKMiX2L5K_p4ZSvHl6dc_X-LicTZJDPNOWJBzLp3G_aCSIsYGcgWHzuw4tI_4tR4acmWcuSVggBB4r03IVYbELxHEO3z-AcxyF'),
+  ('21302010002', '李华', '物理学系', '21届', 'https://lh3.googleusercontent.com/aida-public/AB6AXuB5CRjpipLhLaAMQhev96yIXWSmU0spV4xuRMLxui2tQ6GV4wLrrf811_Wx8C2gfveNsksm3PDSzUiSeQ369Rq7UNEatsuNCqHsEPiO9SqIkiAL3CSl6U4O0SVQP8Zr4RygCO5V8XBWxdb9a4lsgUgr8VJdlpCqo_SAPkNsBA6jgxKDMp0P_60oixqBjYH7lvX7cfYo_dsXwtdLRe5E1Rc7j3dfoSjUZ9Amb56NWpLldNdZCkzQuUKzMa789RXFS4mycQyjEmv8GTQa'),
+  ('22301010003', '林悦', '新闻学院', '22届', 'https://lh3.googleusercontent.com/aida-public/AB6AXuAKWAmfDt9PS1X0KbAVTbZFTBLxirLSSnZ2lpQI2jGHF0F9o0_9OFxXBv3EjGj0vByBIrzWdlM968z2CSZwHo9kZ_A2lONczTgnaw7h2XptZ5DKL8In-6HEMw7HBIHXYGN-27ARuhqrQ7FfefGzv5KdlV1J6BgkZOP39displrArJZaiawyEi1at7dOF513bK0cPhRUNsxqlxPTdt2MNq_0pTLDL1pmIoBG7iTYVYXq8KsnajElS30chbtZomvC8cGr4uZd3lF-XXnJ'),
+  ('22402010004', '王芳', '经济学院', '22届', 'https://api.dicebear.com/7.x/avataaars/svg?seed=wangfang'),
+  ('23102010005', '陈明', '数学科学学院', '23届', 'https://api.dicebear.com/7.x/avataaars/svg?seed=chenming')
 ON CONFLICT (student_id) DO NOTHING;
 
 -- ========== 2. 插入 20 条校园互助任务 ==========

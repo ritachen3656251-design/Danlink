@@ -1,5 +1,6 @@
 import React from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { NotificationProvider } from './context/NotificationContext';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import ServiceCategoryScreen from './screens/ServiceCategoryScreen';
@@ -30,8 +31,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 const App = () => {
   return (
     <HashRouter>
-      <Layout>
-        <Routes>
+      <NotificationProvider>
+        <Layout>
+          <Routes>
           <Route path="/" element={<LoginScreen />} />
           <Route path="/home" element={<HomeScreen />} />
           <Route path="/services" element={<ServiceCategoryScreen />} />
@@ -41,8 +43,9 @@ const App = () => {
           <Route path="/chat" element={<ChatScreen />} />
           <Route path="/profile" element={<ProfileScreen />} />
           <Route path="/card" element={<DigitalCardScreen />} />
-        </Routes>
-      </Layout>
+          </Routes>
+        </Layout>
+      </NotificationProvider>
     </HashRouter>
   );
 };
